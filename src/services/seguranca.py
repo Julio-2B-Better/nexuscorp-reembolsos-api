@@ -1,6 +1,6 @@
 from passlib.context import CryptContext
 from jose import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
@@ -16,7 +16,7 @@ SECRET_KEY = "uma_chave_secreta_muito_segura"
 ALGORITHM = "HS256"
 
 def criar_token_acesso(dados_utilizador: dict, tempo_expiracao_minutos: int = 30):
-    expiracao = datetime.utcnow() + timedelta(minutes=tempo_expiracao_minutos)
+    expiracao = datetime.now(timezone.utc) + timedelta(minutes=tempo_expiracao_minutos)
     dados_utilizador.update({"exp": expiracao.timestamp()})
     token = jwt.encode(dados_utilizador, SECRET_KEY, algorithm=ALGORITHM)
     return token

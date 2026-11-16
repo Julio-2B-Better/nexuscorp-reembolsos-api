@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from src.database import get_db
 from src.models.usuario import Usuario
-from services.seguranca import verificar_senha, criar_token_acesso
+from src.services.seguranca import verificar_senha, criar_token_acesso
 
 router = APIRouter(prefix="/auth", tags=["Autenticação"])
 

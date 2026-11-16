@@ -3,10 +3,9 @@ from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from src.database import get_db
-from src.schemas.reembolso import SolicitacaoCriar, SolicitacaoResposta
 from src.models.solicitacao import SolicitacaoReembolso
-from services.seguranca import obter_utilizador_atual
-from src.schemas.reembolso import AnaliseReembolsoSchema
+from src.schemas.reembolso import SolicitacaoCriar, SolicitacaoResposta, AnaliseReembolsoSchema
+from src.services.seguranca import obter_utilizador_atual
 from src.models.usuario import Usuario
 
 router = APIRouter(prefix="/reembolsos", tags=["Reembolsos"])
@@ -29,16 +28,18 @@ def registar_solicitacao(
     if dados.data_despesa > date.today():
         raise HTTPException(status_code=400, detail="Não são permitidas despesas com datas futuras.")
 
+    user_id = int(utilizador["sub"])
+
     comprovante_duplicado = db.query(SolicitacaoReembolso).filter(
         SolicitacaoReembolso.referencia_comprovante == dados.referencia_comprovante,
-        SolicitacaoReembolso.solicitante_id == utilizador["sub"]
+        SolicitacaoReembolso.solicitante_id == user_id
     ).first()
 
     if comprovante_duplicado:
         raise HTTPException(status_code=400, detail="Já existe uma despesa registrada com este comprovante.")
 
     nova_solicitacao = SolicitacaoReembolso(
-        solicitante_id=utilizador["sub"],
+        solicitante_id=user_id,
         categoria=dados.categoria,
         valor=dados.valor,
         data=dados.data_despesa,
@@ -65,8 +66,11 @@ def analisar_solicitacao(
     if not solicitacao:
         raise HTTPException(status_code=404, detail="Solicitação não encontrada.")
 
-    if solicitacao.solicitante_id == utilizador["sub"]:
-        raise HTTPException(status_code=403, detail="Usuários não podem aprovar suas próprias solicitações.")
+    if solicitacao.solicitante_id == int(utilizador["sub"]):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Não é permitido aprovar ou recusar a sua própria solicitação de reembolso."
+        )
 
     perfil_usuario = utilizador.get("perfil")
     
@@ -93,7 +97,7 @@ def listar_solicitacoes(
     utilizador = Depends(obter_utilizador_atual)
 ):
     perfil = utilizador.get("perfil")
-    user_id = utilizador["sub"]
+    user_id = int(utilizador["sub"])
     
     if perfil == "Colaborador":
         solicitacoes = db.query(SolicitacaoReembolso).filter(
