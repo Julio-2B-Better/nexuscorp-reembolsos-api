@@ -1,13 +1,13 @@
 from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey, Text
 from sqlalchemy.orm import relationship
-from database import Base
+from src.database import Base
 
 class SolicitacaoReembolso(Base):
     __tablename__ = "solicitacoes_reembolso"
 
     id = Column(Integer, primary_key=True, index=True)
     solicitante_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
-    categoria_despesa = Column(String, nullable=False)
+    categoria = Column(String, nullable=False)
     valor = Column(Float, nullable=False)
     data = Column(Date, nullable=False)
     justificativa = Column(Text, nullable=False)

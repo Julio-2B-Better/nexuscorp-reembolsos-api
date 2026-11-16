@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
-from database import Base # Volte um nível ou configure o path adequadamente
+from src.database import Base # Volte um nível ou configure o path adequadamente
 
 class Departamento(Base):
     __tablename__ = "departamentos"
