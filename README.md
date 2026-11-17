@@ -75,7 +75,7 @@ Com a aplicação a correr, abra no seu navegador:
 
 ---
 
-## 🧪 Como Executar os Testes Automatizados
+##  Como Executar os Testes Automatizados
 O projeto conta com uma suíte de testes robusta cobrindo a autenticação, segurança, validações e o ciclo de vida completo de aprovação.
 
 Para executar os testes com o `pytest`, certifique-se de estar com o ambiente virtual ativado e execute:
